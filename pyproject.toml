@@ -1,5 +1,5 @@
 [project]
-name = "pytest-mock-setup"
+name = "pytest-extended-mock"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Adam Davenport", email = "adam006@gmail.com" }]
