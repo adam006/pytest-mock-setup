@@ -6,7 +6,7 @@ class ExtendedMock(MagicMock):
         super().__init__(*args, **kwargs)
         self._setup_data = {}
 
-    def setup(self, args=None, kwargs=None, return_value=None):
+    def setup(self, *args, return_value=None, **kwargs):
         # Default to empty tuple and frozenset
         args = args if args is not None else ()
         kwargs = kwargs if kwargs is not None else {}
@@ -19,16 +19,18 @@ class ExtendedMock(MagicMock):
         return self
 
     def __call__(self, *args, **kwargs):
-        # Check if we have a specific setup for these arguments
-        frozen_kwargs = frozenset(kwargs.items()) if kwargs else frozenset()
-        exact_key = (args, frozen_kwargs)
+        if self._setup_data:
+            # Check if we have a specific setup for these arguments
+            frozen_kwargs = frozenset(kwargs.items()) if kwargs else frozenset()
+            exact_key = (args, frozen_kwargs)
 
-        # If we have a specific setup, return that
-        if exact_key in self._setup_data:
-            value = self._setup_data[exact_key]
-            if isinstance(value, Exception):
-                raise value
-            return value
+            # If we have a specific setup, return that
+            if exact_key in self._setup_data:
+                value = self._setup_data[exact_key]
+                if isinstance(value, Exception):
+                    raise value
+                return value
+            return None
 
         # Otherwise, fall back to default MagicMock behavior
         return super().__call__(*args, **kwargs)
