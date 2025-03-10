@@ -4,6 +4,8 @@ import pytest
 import string
 import random
 
+from src.pytest_extended_mock.plugin import ExtendedMock
+
 
 class SomeClass:
     def do_stuff(self):
@@ -18,9 +20,7 @@ def generate_random_string(length=10):
     return random_string
 
 
-def test_with_extended_mock(mocker):
-    my_mock = mocker.patch("tests.SomeClass")
-
+def run_test(my_mock):
     expected_do_stuff = generate_random_string()
 
     my_mock.do_stuff.setup(return_value=expected_do_stuff)
@@ -55,3 +55,24 @@ def test_with_extended_mock(mocker):
 
     with pytest.raises(Exception, match="whoops"):
         my_mock("something_else")
+
+
+def test_magic_mock():
+    my_mock = ExtendedMock()
+
+    run_test(my_mock)
+
+
+def test_object_patch(mocker):
+    mocker.patch.object(SomeClass, "do_stuff")
+    some_class = SomeClass()
+
+    some_class.do_stuff.setup(return_value="some stuff")
+
+    assert some_class.do_stuff() == "some stuff"
+
+
+def test_with_extended_mock(mocker):
+    my_mock = mocker.patch("tests.SomeClass")
+
+    run_test(my_mock)
