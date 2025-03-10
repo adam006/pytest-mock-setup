@@ -1,9 +1,8 @@
-from faker import Faker
 from unittest.mock import MagicMock
 
 import pytest
-
-fake = Faker()
+import string
+import random
 
 
 class SomeClass:
@@ -11,10 +10,18 @@ class SomeClass:
         print("Hello World")
 
 
+def generate_random_string(length=10):
+    characters = string.ascii_letters + string.digits
+
+    random_string = "".join(random.choices(characters, k=length))
+
+    return random_string
+
+
 def test_with_extended_mock(mocker):
     my_mock = mocker.patch("tests.SomeClass")
 
-    expected_do_stuff = fake.pystr()
+    expected_do_stuff = generate_random_string()
 
     my_mock.do_stuff.setup(return_value=expected_do_stuff)
 
@@ -39,7 +46,7 @@ def test_with_extended_mock(mocker):
     assert my_mock("value1", "value2", "extra") is None  # Additional arg
     assert my_mock("value1") is None  # Missing arg
     assert my_mock(name="test") is None  # Missing kwarg
-    assert my_mock(fake.pystr()) is None
+    assert my_mock(generate_random_string()) is None
 
     assert my_mock.do_stuff() == expected_do_stuff
 
