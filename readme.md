@@ -84,7 +84,7 @@ mock.Setup(x => x.DoSomething("foo", 42)).Returns("Hello, World!");
 ```python
 # ExtendedMock in Python
 mock = MagicMock()
-mock.setup("foo", 42, return_value="Hello, World!")
+mock.do_something.setup("foo", 42, return_value="Hello, World!")
 ```
 
 ---
