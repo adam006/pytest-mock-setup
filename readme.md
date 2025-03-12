@@ -65,6 +65,13 @@ def test_extended_mock_default_behavior():
     assert isinstance(result, MagicMock)
 ```
 
+```python
+def test_mocker_patch(mocker):
+    mock = mocker.patch("your_path")
+
+    mock.setup("foo", return_value="bar")
+``
+```
 ---
 
 ## Why Use ExtendedMock?
