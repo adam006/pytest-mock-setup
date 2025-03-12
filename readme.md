@@ -91,7 +91,7 @@ mock.setup("foo", 42, return_value="Hello, World!")
 
 ## How It Works
 
-The `ExtendedMock` class extends `unittest.mock.MagicMock` and adds a `_setup_data` dictionary to store configurations. When the mock is called, it checks if the arguments match any configured setup. If a match is found, it returns the configured value or raises the configured exception. If no match is found, it falls back to the default `MagicMock` behavior.
+The `ExtendedMock` class extends `unittest.mock.MagicMock` and adds a `_setup_data` dictionary to store configurations. When the mock is called, it checks if the arguments match any configured setup. If a match is found, it returns the configured value or raises the configured exception. If no match is found, it will return `None`. If there is no `setup` configured at all it falls back to the default `MagicMock` behavior.
 
 ---
 
