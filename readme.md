@@ -35,6 +35,18 @@ def test_extended_mock():
     assert result == "Hello, World!"
 ```
 
+Example with `mocker.patch`
+```python
+def test_mocker_patch(mocker):
+    mock = mocker.patch("your_path")
+
+    mock.setup("foo", return_value="bar")
+
+    result = mock("foo")
+
+    assert result == "bar"
+```
+
 ### Raising Exceptions
 
 You can also configure the mock to raise an exception for specific arguments:
@@ -65,13 +77,6 @@ def test_extended_mock_default_behavior():
     assert isinstance(result, MagicMock)
 ```
 
-```python
-def test_mocker_patch(mocker):
-    mock = mocker.patch("your_path")
-
-    mock.setup("foo", return_value="bar")
-``
-```
 ---
 
 ## Why Use ExtendedMock?
