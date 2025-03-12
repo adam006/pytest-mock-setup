@@ -1,6 +1,6 @@
 [project]
 name = "pytest-extended-mock"
-version = "0.1.1"
+version = "0.1.2"
 description = "a pytest extension for easy mock setup"
 authors = [{ name = "Adam Davenport"} ]
 readme = "README.md"
