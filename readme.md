@@ -15,6 +15,9 @@ Welcome to the **ExtendedMock Pytest Plugin**! This plugin enhances Python's `un
 ---
 
 ## Usage
+### find on pypi [link](https://pypi.org/project/pytest-extended-mock/)
+### install
+pip install pytest-extended-mock
 
 ### Basic Example
 
