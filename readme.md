@@ -9,7 +9,8 @@ Welcome to the **ExtendedMock Pytest Plugin**! This plugin enhances Python's `un
 ### Key Features:
 - **Fluent API**: Configure mock behavior using a clean, chainable `setup` method.
 - **Argument-Specific Behavior**: Define return values or exceptions for specific argument combinations.
-- **Seamless Integration**: Works out of the box with `pytest` and replaces `MagicMock` automatically.
+- **Opt-in**: Use `ExtendedMock` where you want it, directly or through `mocker.patch(..., new_callable=ExtendedMock)`. Every other `MagicMock` is left alone.
+- **Still a MagicMock**: Calls are recorded, so `assert_called_with` and friends keep working alongside `setup`.
 - **Familiar to .NET Developers**: If you've used Moq, you'll feel right at home with the `setup` method.
 
 ---
@@ -17,17 +18,19 @@ Welcome to the **ExtendedMock Pytest Plugin**! This plugin enhances Python's `un
 ## Usage
 ### find on pypi [link](https://pypi.org/project/pytest-extended-mock/)
 ### install
+```bash
 pip install pytest-extended-mock
+```
 
 ### Basic Example
 
 Here's how you can use `ExtendedMock` in your tests:
 
 ```python
-from unittest.mock import MagicMock
+from pytest_extended_mock import ExtendedMock
 
 def test_extended_mock():
-    mock = MagicMock()
+    mock = ExtendedMock()
     
     # Configure the mock to return "Hello, World!" when called with ("foo", bar=42)
     mock.setup("foo", bar=42, return_value="Hello, World!")
@@ -40,8 +43,10 @@ def test_extended_mock():
 
 Example with `mocker.patch`
 ```python
+from pytest_extended_mock import ExtendedMock
+
 def test_mocker_patch(mocker):
-    mock = mocker.patch("your_path")
+    mock = mocker.patch("your_path", new_callable=ExtendedMock)
 
     mock.setup("foo", return_value="bar")
 
@@ -52,14 +57,14 @@ def test_mocker_patch(mocker):
 
 ### Raising Exceptions
 
-You can also configure the mock to raise an exception for specific arguments:
+You can also configure the mock to raise an exception, given as a class or an instance, for specific arguments:
 
 ```python
 def test_extended_mock_with_exception():
-    mock = MagicMock()
+    mock = ExtendedMock()
     
     # Configure the mock to raise a ValueError when called with ("error",)
-    mock.setup("error", return_value=ValueError("Something went wrong!"))
+    mock.setup("error", raises=ValueError("Something went wrong!"))
     
     # Call the mock with the configured arguments
     with pytest.raises(ValueError):
@@ -68,17 +73,32 @@ def test_extended_mock_with_exception():
 
 ### Default Behavior
 
-If the mock is called with arguments that don't match any configured setup, it falls back to the default `MagicMock` behavior:
+If the mock is called with arguments that don't match any configured setup, it falls back to the default `MagicMock` behavior and returns its `return_value`:
 
 ```python
 def test_extended_mock_default_behavior():
-    mock = MagicMock()
+    mock = ExtendedMock()
+    mock.setup("configured", return_value="result")
+    mock.return_value = "default"
     
-    # No setup configured, so it returns a new MagicMock instance
-    result = mock("unconfigured", args=123)
-    
-    assert isinstance(result, MagicMock)
+    assert mock("unconfigured", args=123) == "default"
 ```
+
+### Matchers
+
+Setups are compared with `==`, so arguments don't need to be hashable, and matchers such as `unittest.mock.ANY` work:
+
+```python
+from unittest.mock import ANY
+
+def test_extended_mock_any():
+    mock = ExtendedMock()
+    mock.setup(ANY, [1, 2], return_value="result")
+    
+    assert mock("anything", [1, 2]) == "result"
+```
+
+When more than one setup matches, the most recent one wins.
 
 ---
 
@@ -98,7 +118,7 @@ mock.Setup(x => x.DoSomething("foo", 42)).Returns("Hello, World!");
 
 ```python
 # ExtendedMock in Python
-mock = MagicMock()
+mock = ExtendedMock()
 mock.do_something.setup("foo", 42, return_value="Hello, World!")
 ```
 
@@ -106,13 +126,13 @@ mock.do_something.setup("foo", 42, return_value="Hello, World!")
 
 ## How It Works
 
-The `ExtendedMock` class extends `unittest.mock.MagicMock` and adds a `_setup_data` dictionary to store configurations. When the mock is called, it checks if the arguments match any configured setup. If a match is found, it returns the configured value or raises the configured exception. If no match is found, it will return `None`. If there is no `setup` configured at all it falls back to the default `MagicMock` behavior.
+The `ExtendedMock` class extends `unittest.mock.MagicMock`. Each `setup` call stores the expected call and sets the mock's `side_effect` to a function that compares each call against the stored setups. A match returns the configured value or raises the configured exception; anything else falls back to the mock's `return_value`. Because `setup` uses `side_effect`, it replaces any `side_effect` you set yourself. Attributes of an `ExtendedMock` are `ExtendedMock`s too, so `mock.service.fetch.setup(...)` works.
 
 ---
 
 ## Contributing
 
-We welcome contributions! If you have ideas for improvements or find a bug, please open an issue or submit a pull request on [GitHub](https://github.com/yourusername/pytest-extendedmock).
+We welcome contributions! If you have ideas for improvements or find a bug, please open an issue or submit a pull request on [GitHub](https://github.com/adam006/pytest-mock-setup).
 
 ---
 
