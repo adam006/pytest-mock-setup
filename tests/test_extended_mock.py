@@ -74,6 +74,23 @@ def test_setup_raises(exception):
         mock("value")
 
 
+def test_setup_raises_repeated_calls_do_not_accumulate_traceback():
+    import traceback
+
+    exception = ValueError("whoops")
+    mock = ExtendedMock()
+    mock.setup("value", raises=exception)
+
+    traceback_lengths = []
+    for _ in range(3):
+        try:
+            mock("value")
+        except ValueError as err:
+            traceback_lengths.append(len(traceback.extract_tb(err.__traceback__)))
+
+    assert traceback_lengths[0] == traceback_lengths[1] == traceback_lengths[2]
+
+
 def test_setup_returns_exception_given_as_return_value():
     expected = ValueError("whoops")
     mock = ExtendedMock()

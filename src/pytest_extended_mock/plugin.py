@@ -13,6 +13,8 @@ class ExtendedMock(MagicMock):
         for expected, return_value, raises in self._setup_rules:
             if expected == received:
                 if raises is not None:
+                    if isinstance(raises, BaseException):
+                        raise raises.with_traceback(None)
                     raise raises
                 return return_value
         return DEFAULT
